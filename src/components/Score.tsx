@@ -2,9 +2,10 @@ import React, { useState } from 'react'
 
 interface Props {
   score: number
+  styles?: string
 }
 
-export const Score: React.FC<Props> = ({ score }) => {
+export const Score: React.FC<Props> = ({ score, styles }) => {
   const [commentScore, setCommentScore] = useState<number>(score)
 
   const increaseScore = (): void => setCommentScore((prev) => prev + 1)
@@ -16,7 +17,9 @@ export const Score: React.FC<Props> = ({ score }) => {
     })
 
   return (
-    <div className='grow-0 shrink-0 basis-[40px] md:h-[100px] items-center justify-evenly flex flex-col bg-veryLightGray rounded-lg font-medium'>
+    <div
+      className={`grow-0 shrink-0 basis-[40px] md:h-[100px] items-center justify-evenly flex flex-col bg-veryLightGray rounded-lg font-medium ${styles}`}
+    >
       <div
         className='fill-lightGrayishBlue hover:fill-moderateBlue cursor-pointer w-full h-full flex items-center justify-center'
         onClick={increaseScore}

@@ -5,10 +5,10 @@ import { CreateComment } from './components/CreateComment'
 
 function App() {
   return (
-    <main className='pt-8 pb-8 md:min-w-[642px] md:max-w-[730px] flex flex-col justify-between gap-5'>
+    <main className='pt-8 pb-8 md:w-[730px] flex flex-col justify-between gap-5'>
       <section className='flex flex-col items-center gap-5'>
         {data.comments.map((comment) => (
-          <div className='flex flex-col gap-5' key={comment.id}>
+          <div className='flex flex-col gap-5 w-full' key={comment.id}>
             <Comment
               key={comment.id}
               username={comment.user.username}
