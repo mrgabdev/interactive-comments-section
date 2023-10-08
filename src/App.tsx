@@ -1,34 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+/* eslint-disable multiline-ternary */
+import data from '../data.json'
+import { Comment } from './components/Comment'
+import { CreateComment } from './components/CreateComment'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href='https://vitejs.dev' target='_blank'>
-          <img src={viteLogo} className='logo' alt='Vite logo' />
-        </a>
-        <a href='https://react.dev' target='_blank'>
-          <img src={reactLogo} className='logo react' alt='React logo' />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className='card'>
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className='read-the-docs'>
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <main className='pt-8 pb-8 md:min-w-[642px] md:max-w-[730px] flex flex-col justify-between gap-5'>
+      <section className='flex flex-col items-center gap-5'>
+        {data.comments.map((comment) => (
+          <div className='flex flex-col gap-5' key={comment.id}>
+            <Comment
+              key={comment.id}
+              username={comment.user.username}
+              content={comment.content}
+              createdAt={comment.createdAt}
+              score={comment.score}
+              userthumbnail={comment.user.image.webp || comment.user.image.png}
+            />
+            {!comment.replies.length ? null : (
+              <section className='flex flex-col gap-5 border-l-2 border-l-lightGray md:ml-10 md:pl-10'>
+                {comment.replies.map((reply) => (
+                  <Comment
+                    key={reply.id}
+                    username={reply.user.username}
+                    content={reply.content}
+                    createdAt={reply.createdAt}
+                    score={reply.score}
+                    userthumbnail={
+                      reply.user.image.webp || reply.user.image.png
+                    }
+                    replyingTo={reply.replyingTo}
+                  />
+                ))}
+              </section>
+            )}
+          </div>
+        ))}
+      </section>
+      <CreateComment />
+    </main>
   )
 }
 
