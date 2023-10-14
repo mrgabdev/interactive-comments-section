@@ -7,3 +7,59 @@
     font-family: 'Rubik', sans-serif;
   }
 }
+
+@layer components {
+  .comment-grid {
+    display: grid;
+    place-content: center;
+    grid-template-areas:
+      'user user user'
+      'comment comment comment'
+      'score ... controls';
+  }
+
+  .create-comment-grid {
+    display: grid;
+    grid-template-areas:
+      'input input input'
+      'user ... button';
+    grid-template-columns: auto 1fr auto;
+  }
+
+  @media screen and (min-width: 700px) {
+    .comment-grid {
+      grid-template-areas:
+        'score user controls'
+        'score comment comment';
+      grid-template-columns: auto 1fr auto;
+    }
+
+    .create-comment-grid {
+      grid-template-areas: 'user input button';
+    }
+  }
+}
+
+@layer utilities {
+  .comment-score {
+    grid-area: score;
+  }
+  .comment-user {
+    grid-area: user;
+  }
+  .comment-content {
+    grid-area: comment;
+  }
+  .comment-controls {
+    grid-area: controls;
+  }
+  .create-user {
+    grid-area: user;
+  }
+  .create-input {
+    grid-area: input;
+  }
+  .create-button {
+    grid-area: button;
+  }
+}

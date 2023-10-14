@@ -1,13 +1,13 @@
 /* eslint-disable multiline-ternary */
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { Score } from './Score'
 import replyIcon from '../assets/icons/icon-reply.svg'
 import deleteIcon from '../assets/icons/icon-delete.svg'
 import editIcon from '../assets/icons/icon-edit.svg'
-import { useComments } from '../store/comments'
-import { useEditable } from '../hooks/useEditable'
+import { useCommentUser } from '../hooks/useEditable'
 
 interface CommentProps {
+  currentUser: string
   username: string
   userthumbnail: string
   createdAt: string
@@ -16,90 +16,144 @@ interface CommentProps {
   replyingTo?: string
 }
 
-export const Comment: React.FC<CommentProps> = ({
+export const Comment = ({
+  currentUser,
   username,
   userthumbnail,
   createdAt,
   content,
   score,
   replyingTo
-}) => {
-  const user = useComments((state) => state.currentUser)
-  const [editable, handleEditable] = useEditable()
+}: CommentProps) => {
+  const { editable, handleEdit, handleDelete } = useCommentUser()
 
   return (
-    <section className='bg-white p-6 flex flex-col md:flex-row justify-between md:h-40 rounded-lg gap-6'>
-      <Score score={score} styles='hidden md:flex' />
+    <section className='bg-white p-4 md:p-6 md:h-[167px] rounded-lg shadow-sm'>
+      <article className='comment-grid w-full h-full gap-6 gap-y-4'>
+        <Score score={score} />
+        <CommentUserInfo>
+          <CommentUserImg userthumbnail={userthumbnail} />
+          <CommentUsername>{username}</CommentUsername>
+          <CurrentUser username={username} currentUser={currentUser} />
+          <CommentCreatedAt>{createdAt}</CommentCreatedAt>
+        </CommentUserInfo>
+        {currentUser !== username ? (
+          <ReplyButton />
+        ) : (
+          <CommentControls>
+            <DeleteButton clickFunction={handleDelete} />
+            <EditButton clickFunction={handleEdit} />
+          </CommentControls>
+        )}
 
-      <article className='flex flex-col gap-2 w-full h-full'>
-        <header className='flex justify-between items-center'>
-          <div className='flex items-center gap-4'>
-            <img
-              className='w-[32px] h-[32px]'
-              src={userthumbnail}
-              alt='user photo'
-            />
-
-            <h2 className='font-medium text-darkBlue'>{username}</h2>
-            {user !== username ? null : <CurrentUser />}
-            <p className='text-grayishBlue'>{createdAt}</p>
-          </div>
-          {user !== username ? (
-            <ReplyButton />
-          ) : (
-            <CommentOptions styles='hidden md:flex'>
-              <DeleteButton clickFunction={handleEditable} />
-              <EditButton clickFunction={handleEditable} />
-            </CommentOptions>
-          )}
-        </header>
-        <p
-          className='text-grayishBlue'
-          contentEditable={user === username && editable}
+        <CommentContent
+          username={username}
+          currentUser={currentUser}
+          editable={editable}
+          replyingTo={replyingTo}
         >
-          {!replyingTo ? null : (
-            <span className='text-moderateBlue font-medium mr-1'>
-              @{replyingTo}
-            </span>
-          )}
           {content}
-        </p>
+        </CommentContent>
       </article>
-      <CommentOptions styles='md:hidden'>
-        <DeleteButton clickFunction={handleEditable} />
-        <EditButton clickFunction={handleEditable} />
-      </CommentOptions>
     </section>
   )
 }
 
-const CurrentUser = () => (
-  <p className='text-white bg-moderateBlue text-xs font-medium px-[6px] h-fit pb-[3px] pt-[1px] rounded-sm flex items-center'>
-    you
-  </p>
-)
+interface UserInfo {
+  children: ReactNode[] | ReactNode
+}
 
-const ReplyButton = () => (
-  <div className='flex justify-center gap-1 items-center cursor-pointer hover:opacity-40'>
+const CommentUserInfo: React.FC<UserInfo> = ({ children }) => {
+  return (
+    <header className='comment-user flex items-center gap-2'>{children}</header>
+  )
+}
+
+interface UsernameProps {
+  children: ReactNode | string
+}
+
+const CommentUsername: React.FC<UsernameProps> = ({ children: username }) => {
+  return <h2 className='font-medium text-darkBlue'>{username}</h2>
+}
+
+interface UserImgProps {
+  userthumbnail: string
+}
+
+const CommentUserImg: React.FC<UserImgProps> = ({ userthumbnail }) => {
+  return (
+    <img className='w-[32px] h-[32px]' src={userthumbnail} alt='user photo' />
+  )
+}
+
+interface CurrentUserProps {
+  username: string
+  currentUser: string
+}
+const CurrentUser: React.FC<CurrentUserProps> = ({ username, currentUser }) => {
+  if (currentUser !== username) return null
+
+  return (
+    <p className='text-white bg-moderateBlue text-xs font-medium px-[6px] h-fit pb-[3px] pt-[1px] rounded-sm flex items-center'>
+      you
+    </p>
+  )
+}
+
+interface CreatedAtProps {
+  children: ReactNode | string
+}
+const CommentCreatedAt: React.FC<CreatedAtProps> = ({
+  children: createdAt
+}) => {
+  return <p className='text-grayishBlue ml-1'>{createdAt}</p>
+}
+
+interface Content {
+  children: ReactNode | ReactNode[]
+  username: string
+  currentUser: string
+  editable: boolean
+  replyingTo: string | undefined
+}
+
+const CommentContent: React.FC<Content> = ({
+  children: content,
+  username,
+  currentUser,
+  editable,
+  replyingTo
+}) => {
+  return (
+    <p
+      className='text-grayishBlue comment-content'
+      contentEditable={currentUser === username && editable}
+    >
+      {!replyingTo ? null : (
+        <span className='text-moderateBlue font-medium mr-1'>
+          @{replyingTo}
+        </span>
+      )}
+      {content}
+    </p>
+  )
+}
+
+const ReplyButton = ({ styles }: { styles?: string }) => (
+  <div
+    className={`comment-controls flex justify-center gap-1 items-center cursor-pointer hover:opacity-40 ${styles}`}
+  >
     <img className='h-[13px]' src={replyIcon} alt='reply' />
     <p className='text-moderateBlue font-medium'>Reply</p>
   </div>
 )
 
-interface OptionsProps {
-  styles?: string
-  children: React.JSX.Element | React.JSX.Element[]
+interface CommentButtonsProps {
+  clickFunction?: () => void
 }
 
-const CommentOptions: React.FC<OptionsProps> = ({ children, styles }) => {
-  return (
-    <section className={`flex gap-2 md:gap-4 ${styles}`}>{children}</section>
-  )
-}
-
-type OptionProp = { clickFunction: () => void }
-
-const DeleteButton = ({ clickFunction }: OptionProp) => {
+const DeleteButton = ({ clickFunction }: CommentButtonsProps) => {
   return (
     <div
       className='flex justify-center gap-1 items-center cursor-pointer hover:opacity-40'
@@ -111,7 +165,7 @@ const DeleteButton = ({ clickFunction }: OptionProp) => {
   )
 }
 
-const EditButton = ({ clickFunction }: OptionProp) => {
+const EditButton = ({ clickFunction }: CommentButtonsProps) => {
   return (
     <div
       className='flex justify-center gap-1 items-center cursor-pointer hover:opacity-40'
@@ -120,5 +174,17 @@ const EditButton = ({ clickFunction }: OptionProp) => {
       <img className='h-[13px]' src={editIcon} alt='edit' />
       <p className='text-moderateBlue font-medium'>Edit</p>
     </div>
+  )
+}
+interface OptionsProps {
+  styles?: string
+  children: React.JSX.Element | React.JSX.Element[] | ReactNode
+}
+
+const CommentControls = ({ styles, children }: OptionsProps) => {
+  return (
+    <section className={`comment-controls flex gap-5 ${styles}`}>
+      {children}
+    </section>
   )
 }

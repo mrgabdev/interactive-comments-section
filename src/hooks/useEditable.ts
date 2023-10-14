@@ -1,9 +1,17 @@
 import { useState } from 'react'
 
-export const useEditable = (): [boolean, () => void] => {
+interface Hook {
+  editable: boolean
+  handleEdit: () => void
+  handleDelete: () => void
+}
+
+export const useCommentUser = (): Hook => {
   const [editable, isEditable] = useState<boolean>(false)
 
-  const handleEditable = () => isEditable((prev) => !prev)
+  const handleEdit = () => isEditable((prev) => !prev)
 
-  return [editable, handleEditable]
+  const handleDelete = () => alert('Ola papu')
+
+  return { editable, handleEdit, handleDelete }
 }

@@ -23,6 +23,7 @@ module.exports = {
       'warn',
       { allowConstantExport: true }
     ],
-    'space-before-function-paren': 0
+    'space-before-function-paren': 0,
+    'react/prop-types': 0
   }
 }
